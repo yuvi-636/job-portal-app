@@ -14,7 +14,7 @@ const JobList = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await axios.get("/api/jobs");
+        const res = await axios.get("https://job-portal-backend-2bl9.onrender.com/api/jobs");
         setJobs(res.data);
       } catch (err) {
         console.error("Error fetching jobs:", err);

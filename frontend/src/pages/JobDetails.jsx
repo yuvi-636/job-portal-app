@@ -9,7 +9,7 @@ const JobDetails = () => {
   // ✅ Wrapped in useCallback (fixes warning properly)
   const fetchJob = useCallback(async () => {
     try {
-      const res = await axios.get(`/api/jobs/${id}`);
+      const res = await axios.get(`https://job-portal-backend-2bl9.onrender.com/api/jobs/${id}`);
       setJob(res.data);
     } catch (err) {
       console.error("Error fetching job:", err);
