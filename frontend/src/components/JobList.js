@@ -38,15 +38,27 @@ const JobList = () => {
 useEffect(() => {
   const fetchJobs = async () => {
     try {
+      // ✅ Fetch DB jobs
       const res = await fetch("https://job-portal-backend-1-ugyh.onrender.com/api/jobs");
       const data = await res.json();
 
-      const externalRes = await fetch("https://job-portal-backend-1-ugyh.onrender.com/api/jobs/external");
-      const externalData = await externalRes.json();
+      let externalData = [];
 
+      try {
+        // ✅ Try external API (optional)
+        const externalRes = await fetch(
+          "https://job-portal-backend-1-ugyh.onrender.com/api/jobs/external"
+        );
+        externalData = await externalRes.json();
+      } catch (err) {
+        console.log("External API failed, using DB only");
+      }
+
+      // ✅ Always show at least DB jobs
       setJobs([...data, ...externalData]);
+
     } catch (err) {
-      console.error(err);
+      console.error("Main API failed:", err);
     }
   };
 
