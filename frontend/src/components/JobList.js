@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import JobCard from "./JobCard";
 import SearchBar from "./SearchBar";
 import FilterBar from "./FilterBar";
+
+const API = "https://job-portal-backend-1-ugyh.onrender.com";
 
 const JobList = () => {
   const [jobs, setJobs] = useState([]);
@@ -11,60 +12,44 @@ const JobList = () => {
   const [view, setView] = useState("list");
   const [loading, setLoading] = useState(true);
 
-//   useEffect(() => {
-//     const fetchJobs = async () => {
-//   try {
-//     const [localRes, externalRes] = await Promise.all([
-//       axios.get(`${API}/api/jobs`),
-//       axios.get(`${API}/api/jobs/external`)
-//     ]);
-
-//     const combinedJobs = [
-//       ...localRes.data,
-//       ...externalRes.data
-//     ];
-
-//     setJobs(combinedJobs);
-//   } catch (err) {
-//     console.error(err);
-//   } finally {
-//     setLoading(false);
-//   }
-// };
-
-//     fetchJobs();
-//   }, []);
-
-useEffect(() => {
-  const fetchJobs = async () => {
-    try {
-      // ✅ Fetch DB jobs
-      const res = await fetch("https://job-portal-backend-1-ugyh.onrender.com/api/jobs");
-      const data = await res.json();
-
-      let externalData = [];
-
+  useEffect(() => {
+    const fetchJobs = async () => {
       try {
-        // ✅ Try external API (optional)
-        const externalRes = await fetch(
-          "https://job-portal-backend-1-ugyh.onrender.com/api/jobs/external"
-        );
-        externalData = await externalRes.json();
+        // ✅ Fetch DB jobs FIRST (never block UI)
+        const res = await fetch(`${API}/api/jobs`);
+        
+        if (!res.ok) throw new Error("Failed to fetch jobs");
+
+        const data = await res.json();
+
+        // ✅ Show DB jobs immediately
+        setJobs(data);
+        setLoading(false);
+
+        // 🔥 Fetch external jobs separately (non-blocking)
+        try {
+          const externalRes = await fetch(`${API}/api/jobs/external`);
+
+          if (externalRes.ok) {
+            const externalData = await externalRes.json();
+
+            // merge safely
+            setJobs((prev) => [...prev, ...externalData]);
+          }
+        } catch (err) {
+          console.log("External API failed (ignored)");
+        }
+
       } catch (err) {
-        console.log("External API failed, using DB only");
+        console.error("Main API failed:", err);
+        setLoading(false);
       }
+    };
 
-      // ✅ Always show at least DB jobs
-      setJobs([...data, ...externalData]);
+    fetchJobs();
+  }, []);
 
-    } catch (err) {
-      console.error("Main API failed:", err);
-    }
-  };
-
-  fetchJobs();
-}, []);
-  // 🔍 FILTER LOGIC (FINAL FIXED)
+  // 🔍 FILTER LOGIC
   const filteredJobs = jobs.filter((job) => {
     const searchText = search.toLowerCase();
 
@@ -139,7 +124,7 @@ useEffect(() => {
           <p className="text-center text-gray-500">No jobs found</p>
         ) : (
           filteredJobs.map((job) => (
-            <JobCard key={job._id} job={job} />
+            <JobCard key={job._id || job.id} job={job} />
           ))
         )}
       </div>
