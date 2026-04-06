@@ -19,6 +19,7 @@ const allowedOrigins = [
   "https://job-portal-frontend-7n9u.onrender.com",
 ];
 
+console.log("CORS CONFIG LOADED 🚀");
 app.use(
   cors({
     origin: function (origin, callback) {
