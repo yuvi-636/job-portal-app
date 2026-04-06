@@ -11,29 +11,47 @@ const JobList = () => {
   const [view, setView] = useState("list");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-  try {
-    const [localRes, externalRes] = await Promise.all([
-      axios.get(`${API}/api/jobs`),
-      axios.get(`${API}/api/jobs/external`)
-    ]);
+//   useEffect(() => {
+//     const fetchJobs = async () => {
+//   try {
+//     const [localRes, externalRes] = await Promise.all([
+//       axios.get(`${API}/api/jobs`),
+//       axios.get(`${API}/api/jobs/external`)
+//     ]);
 
-    const combinedJobs = [
-      ...localRes.data,
-      ...externalRes.data
-    ];
+//     const combinedJobs = [
+//       ...localRes.data,
+//       ...externalRes.data
+//     ];
 
-    setJobs(combinedJobs);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
+//     setJobs(combinedJobs);
+//   } catch (err) {
+//     console.error(err);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
 
-    fetchJobs();
-  }, []);
+//     fetchJobs();
+//   }, []);
+
+useEffect(() => {
+  const fetchJobs = async () => {
+    try {
+      const res = await fetch("https://job-portal-backend-1-ugyh.onrender.com/api/jobs");
+      const data = await res.json();
+
+      const externalRes = await fetch("https://job-portal-backend-1-ugyh.onrender.com/api/jobs/external");
+      const externalData = await externalRes.json();
+
+      setJobs([...data, ...externalData]);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchJobs();
+}, []);
 
   // 🔍 FILTER LOGIC (FINAL FIXED)
   const filteredJobs = jobs.filter((job) => {
