@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import JobList from "./components/JobList";
 import JobDetails from "./pages/JobDetails";
+import AdminPage from "./pages/AdminPage"
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
         <Routes>
           <Route path="/" element={<JobList />} />
           <Route path="/job/:id" element={<JobDetails />} />
+          {/* <Route path = "admin" element = {<AdminPage />}/> */}
+        <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </div>
 
