@@ -3,16 +3,13 @@ const router = express.Router();
 
 const {
   getJobs,
-  getJobById,   
   addJob,
   addMultipleJobs,
   deleteJob,
 } = require("../controllers/jobController");
 
-// 🔹 Order matters
+// ✅ Routes
 router.get("/", getJobs);
-router.get("/:id", getJobById);  // ✅ ADD THIS
-
 router.post("/", addJob);
 router.post("/bulk", addMultipleJobs);
 router.delete("/:id", deleteJob);
