@@ -64,7 +64,6 @@ useEffect(() => {
 
   fetchJobs();
 }, []);
-
   // 🔍 FILTER LOGIC (FINAL FIXED)
   const filteredJobs = jobs.filter((job) => {
     const searchText = search.toLowerCase();

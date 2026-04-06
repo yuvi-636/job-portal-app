@@ -13,11 +13,32 @@ connectDB();
 const app = express();
 const server = http.createServer(app);
 
+// ✅ FIXED CORS (IMPORTANT)
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://job-portal-frontend-7n9u.onrender.com",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin (like Postman)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 
-// ✅ TEST ROUTE (VERY IMPORTANT)
+// ✅ TEST ROUTE
 app.get("/", (req, res) => {
   res.send("API is working 🚀");
 });
