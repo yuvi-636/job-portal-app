@@ -22,16 +22,7 @@ const allowedOrigins = [
 console.log("CORS CONFIG LOADED 🚀");
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // allow requests with no origin (like Postman)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: true, // ✅ allow all origins dynamically
     credentials: true,
   })
 );
