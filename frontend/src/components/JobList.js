@@ -13,15 +13,24 @@ const JobList = () => {
 
   useEffect(() => {
     const fetchJobs = async () => {
-      try {
-        const res = await axios.get("https://job-portal-backend-2bl9.onrender.com/api/jobs");
-        setJobs(res.data);
-      } catch (err) {
-        console.error("Error fetching jobs:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  try {
+    const [localRes, externalRes] = await Promise.all([
+      axios.get(`${API}/api/jobs`),
+      axios.get(`${API}/api/jobs/external`)
+    ]);
+
+    const combinedJobs = [
+      ...localRes.data,
+      ...externalRes.data
+    ];
+
+    setJobs(combinedJobs);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
     fetchJobs();
   }, []);
