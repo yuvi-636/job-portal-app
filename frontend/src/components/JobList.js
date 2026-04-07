@@ -4,7 +4,8 @@ import SearchBar from "./SearchBar";
 import FilterBar from "./FilterBar";
 
 // ✅ BACKEND URL (FINAL)
-const API = "https://job-portal-backend-1-ugyh.onrender.com";
+// const API = "https://job-portal-backend-1-ugyh.onrender.com";
+const API = "https://job-portal-backend-1-ugyh.onrender.com?v=2";
 
 const JobList = () => {
   const [jobs, setJobs] = useState([]);
@@ -14,6 +15,7 @@ const JobList = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("🔥 NEW BUILD RUNNING");
     const fetchJobs = async () => {
       try {
         const res = await fetch(`${API}/api/jobs`);
