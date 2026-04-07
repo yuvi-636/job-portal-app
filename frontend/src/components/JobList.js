@@ -3,6 +3,7 @@ import JobCard from "./JobCard";
 import SearchBar from "./SearchBar";
 import FilterBar from "./FilterBar";
 
+// ✅ BACKEND URL (FINAL)
 const API = "https://job-portal-backend-1-ugyh.onrender.com";
 
 const JobList = () => {
@@ -15,34 +16,20 @@ const JobList = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        // ✅ Fetch DB jobs FIRST (never block UI)
         const res = await fetch(`${API}/api/jobs`);
-        
-        if (!res.ok) throw new Error("Failed to fetch jobs");
 
-        const data = await res.json();
-        console.log("DATA:", data);
-
-        // ✅ Show DB jobs immediately
-        setJobs(data);
-        setLoading(false);
-
-        // 🔥 Fetch external jobs separately (non-blocking)
-        try {
-          const externalRes = await fetch(`${API}/api/jobs/external`);
-
-          if (externalRes.ok) {
-            const externalData = await externalRes.json();
-
-            // merge safely
-            setJobs((prev) => [...prev, ...externalData]);
-          }
-        } catch (err) {
-          console.log("External API failed (ignored)");
+        if (!res.ok) {
+          throw new Error(`API Error: ${res.status}`);
         }
 
+        const data = await res.json();
+
+        console.log("✅ Jobs fetched:", data);
+
+        setJobs(data);
       } catch (err) {
-        console.error("Main API failed:", err);
+        console.error("❌ Fetch failed:", err);
+      } finally {
         setLoading(false);
       }
     };
@@ -50,7 +37,7 @@ const JobList = () => {
     fetchJobs();
   }, []);
 
-  // 🔍 FILTER LOGIC
+  // 🔍 FILTER LOGIC (SAFE)
   const filteredJobs = jobs.filter((job) => {
     const searchText = search.toLowerCase();
 
@@ -65,8 +52,8 @@ const JobList = () => {
     return matchesSearch && matchesFilter;
   });
 
-  // ⏳ LOADING STATE
-  if (loading) {
+  // ⏳ LOADING STATE (FIXED)
+  if (loading && jobs.length === 0) {
     return (
       <p className="text-center mt-10 text-gray-500 animate-pulse">
         Loading jobs...
