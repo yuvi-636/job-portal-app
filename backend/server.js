@@ -1,5 +1,4 @@
 const express = require("express");
-const cors = require("cors");
 const dotenv = require("dotenv");
 
 const connectDB = require("./config/db");
@@ -10,10 +9,15 @@ connectDB();
 
 const app = express();
 
-// ✅ SIMPLE CORS (ENOUGH)
-app.use(cors());
+// 🔥 FORCE CORS (NO DEPENDENCY ON cors() PACKAGE)
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-// ✅ JSON
+  next();
+});
+
 app.use(express.json());
 
 // ✅ ROUTES
