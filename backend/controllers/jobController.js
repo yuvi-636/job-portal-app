@@ -2,10 +2,16 @@ const Job = require("../models/Job");
 
 const getJobs = async (req, res) => {
   try {
+    console.log("🔥 getJobs called");
+
     const jobs = await Job.find();
+
+    console.log("✅ Jobs fetched:", jobs.length);
+
     res.json(jobs);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching jobs" });
+    console.error("❌ ERROR in getJobs:", err);
+    res.status(500).json({ message: "Server error in getJobs" });
   }
 };
 
