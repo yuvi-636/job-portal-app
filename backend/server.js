@@ -27,10 +27,26 @@ app.get("/api/test", (req, res) => {
 });
 
 // ✅ IMPORT ROUTES
-const jobRoutes = require("./routes/jobRoutes");
+// const jobRoutes = require("./routes/jobRoutes");
 
-// ✅ USE ROUTES
-app.use("/api/jobs", jobRoutes);
+// // ✅ USE ROUTES
+// app.use("/api/jobs", jobRoutes);
+
+let jobRoutes;
+
+try {
+  jobRoutes = require("./routes/jobRoutes");
+  console.log("✅ jobRoutes imported");
+} catch (err) {
+  console.error("❌ jobRoutes import FAILED:", err);
+}
+
+if (jobRoutes) {
+  app.use("/api/jobs", jobRoutes);
+  console.log("✅ jobRoutes mounted at /api/jobs");
+} else {
+  console.log("❌ jobRoutes NOT mounted");
+}
 
 
 
