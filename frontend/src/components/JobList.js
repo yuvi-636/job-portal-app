@@ -21,6 +21,7 @@ const JobList = () => {
         if (!res.ok) throw new Error("Failed to fetch jobs");
 
         const data = await res.json();
+        console.log("DATA:", data);
 
         // ✅ Show DB jobs immediately
         setJobs(data);
