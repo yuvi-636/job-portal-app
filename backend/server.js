@@ -3,52 +3,28 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 
 const connectDB = require("./config/db");
+const jobRoutes = require("./routes/jobRoutes"); // ✅ IMPORT FIRST
 
 dotenv.config();
 connectDB();
 
 const app = express();
 
-// ✅ SIMPLE CORS (REMOVE COMPLEX LOGIC)
-app.get("/api/jobs", (req, res) => {
-  res.json([{ title: "TEST JOB", company: "TEST COMPANY" }]);
-});
+// ✅ MIDDLEWARE FIRST
 app.use(cors());
 app.use(express.json());
 
-// ✅ TEST ROUTE
+// ✅ TEST ROUTES
 app.get("/", (req, res) => {
   res.send("API is working 🚀");
 });
 
-// ✅ TEMP TEST ROUTE (VERY IMPORTANT)
 app.get("/api/test", (req, res) => {
   res.json({ message: "API route working ✅" });
 });
 
-// ✅ IMPORT ROUTES
-// const jobRoutes = require("./routes/jobRoutes");
-
-// // ✅ USE ROUTES
-// app.use("/api/jobs", jobRoutes);
-
-let jobRoutes;
-
-try {
-  jobRoutes = require("./routes/jobRoutes");
-  console.log("✅ jobRoutes imported");
-} catch (err) {
-  console.error("❌ jobRoutes import FAILED:", err);
-}
-
-if (jobRoutes) {
-  app.use("/api/jobs", jobRoutes);
-  console.log("✅ jobRoutes mounted at /api/jobs");
-} else {
-  console.log("❌ jobRoutes NOT mounted");
-}
-
-
+// ✅ ACTUAL ROUTES (ONLY ONCE)
+app.use("/api/jobs", jobRoutes);
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
