@@ -10,12 +10,10 @@ connectDB();
 
 const app = express();
 
-// ✅ SIMPLE + CORRECT CORS (NO CUSTOM HEADERS)
+// ✅ SIMPLE CORS (ENOUGH)
 app.use(cors());
 
-// ✅ IMPORTANT: handle preflight
-app.options("*", cors());
-
+// ✅ JSON
 app.use(express.json());
 
 // ✅ ROUTES
