@@ -3,9 +3,8 @@ import JobCard from "./JobCard";
 import SearchBar from "./SearchBar";
 import FilterBar from "./FilterBar";
 
-// ✅ BACKEND URL (FINAL)
-// const API = "https://job-portal-backend-1-ugyh.onrender.com";
-const API = "https://job-portal-backend-1-ugyh.onrender.com?v=2";
+// ✅ ONLY THIS (NO ?v=2 HERE)
+const API = "https://job-portal-backend-1-ugyh.onrender.com";
 
 const JobList = () => {
   const [jobs, setJobs] = useState([]);
@@ -15,22 +14,25 @@ const JobList = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("🔥 NEW BUILD RUNNING");
     const fetchJobs = async () => {
+      console.log("🔥 FETCH STARTED");
+
       try {
         const res = await fetch(`${API}/api/jobs`);
 
+        console.log("🔥 STATUS:", res.status);
+
         if (!res.ok) {
-          throw new Error(`API Error: ${res.status}`);
+          throw new Error("API failed");
         }
 
         const data = await res.json();
 
-        console.log("✅ Jobs fetched:", data);
+        console.log("🔥 DATA:", data);
 
         setJobs(data);
       } catch (err) {
-        console.error("❌ Fetch failed:", err);
+        console.error("❌ ERROR:", err);
       } finally {
         setLoading(false);
       }
@@ -39,7 +41,7 @@ const JobList = () => {
     fetchJobs();
   }, []);
 
-  // 🔍 FILTER LOGIC (SAFE)
+  // 🔍 FILTER
   const filteredJobs = jobs.filter((job) => {
     const searchText = search.toLowerCase();
 
@@ -54,10 +56,10 @@ const JobList = () => {
     return matchesSearch && matchesFilter;
   });
 
-  // ⏳ LOADING STATE (FIXED)
-  if (loading && jobs.length === 0) {
+  // ⏳ LOADING
+  if (loading) {
     return (
-      <p className="text-center mt-10 text-gray-500 animate-pulse">
+      <p className="text-center mt-10 text-gray-500">
         Loading jobs...
       </p>
     );
@@ -65,49 +67,18 @@ const JobList = () => {
 
   return (
     <div>
-      {/* 🔍 SEARCH + FILTER */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-3 items-center">
-        
-        <div className="w-full md:flex-1">
-          <SearchBar search={search} setSearch={setSearch} />
-        </div>
-
-        <div className="w-full md:w-56">
-          <FilterBar filter={filter} setFilter={setFilter} />
-        </div>
+      {/* SEARCH + FILTER */}
+      <div className="bg-white p-4 rounded-xl shadow mb-6 flex flex-col md:flex-row gap-3">
+        <SearchBar search={search} setSearch={setSearch} />
+        <FilterBar filter={filter} setFilter={setFilter} />
       </div>
 
-      {/* 🔘 VIEW TOGGLE */}
-      <div className="flex justify-end mb-4 gap-2">
-        <button
-          onClick={() => setView("list")}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
-            view === "list"
-              ? "bg-gray-900 text-white"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
-        >
-          📋 List
-        </button>
-
-        <button
-          onClick={() => setView("grid")}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
-            view === "grid"
-              ? "bg-gray-900 text-white"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
-        >
-          🧩 Grid
-        </button>
-      </div>
-
-      {/* 🧾 JOB LIST */}
+      {/* JOB LIST */}
       <div
         className={
           view === "grid"
-            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4"
-            : "flex flex-col gap-4 mt-4"
+            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            : "flex flex-col gap-4"
         }
       >
         {filteredJobs.length === 0 ? (
