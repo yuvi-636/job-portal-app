@@ -29,12 +29,7 @@ const jobRoutes = require("./routes/jobRoutes");
 // ✅ USE ROUTES
 app.use("/api/jobs", jobRoutes);
 
-// ✅ DEBUG ROUTE LIST
-app._router.stack.forEach((r) => {
-  if (r.route && r.route.path) {
-    console.log("Route:", r.route.path);
-  }
-});
+
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
