@@ -10,64 +10,48 @@ connectDB();
 
 const app = express();
 
-// ✅ MUST BE FIRST (VERY IMPORTANT)
-app.use(cors({
-  origin: "*",   // 🔥 allow all (fixes your issue instantly)
-  methods: ["GET", "POST", "DELETE"],
-}));
+//
+// ✅ 1. FORCE CORS HEADERS (GUARANTEED FIX)
+//
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "*");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
 
+  // ✅ Handle preflight requests
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
+
+//
+// ✅ 2. ALSO USE cors() (SAFE BACKUP)
+//
+app.use(cors());
+
+//
+// ✅ 3. PARSE JSON
+//
 app.use(express.json());
 
-// ✅ ROUTES
+//
+// ✅ 4. ROUTES
+//
 app.use("/api/jobs", jobRoutes);
 
-// ✅ TEST
+//
+// ✅ 5. TEST ROUTE
+//
 app.get("/", (req, res) => {
   res.send("API is working 🚀");
 });
 
+//
+// ✅ 6. START SERVER
+//
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Server running on ${PORT}`);
 });
-
-
-
-
-
-
-
-
-
-// const express = require("express");
-// const cors = require("cors");
-// const dotenv = require("dotenv");
-
-// const connectDB = require("./config/db");
-// const jobRoutes = require("./routes/jobRoutes"); // ✅ IMPORT FIRST
-
-// dotenv.config();
-// connectDB();
-
-// const app = express();
-
-// // ✅ MIDDLEWARE FIRST
-// app.use(cors());
-// app.use(express.json());
-
-// // ✅ TEST ROUTES
-// app.get("/", (req, res) => {
-//   res.send("API is working 🚀");
-// });
-
-// app.get("/api/test", (req, res) => {
-//   res.json({ message: "API route working ✅" });
-// });
-
-// // ✅ ACTUAL ROUTES (ONLY ONCE)
-// app.use("/api/jobs", jobRoutes);
-
-// const PORT = process.env.PORT || 10000;
-// app.listen(PORT, () => {
-//   console.log(`Server running on ${PORT}`);
-// });
