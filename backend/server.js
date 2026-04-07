@@ -10,6 +10,9 @@ connectDB();
 const app = express();
 
 // ✅ SIMPLE CORS (REMOVE COMPLEX LOGIC)
+app.get("/api/jobs", (req, res) => {
+  res.json([{ title: "TEST JOB", company: "TEST COMPANY" }]);
+});
 app.use(cors());
 app.use(express.json());
 
