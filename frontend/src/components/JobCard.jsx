@@ -3,96 +3,53 @@ import { useNavigate } from "react-router-dom";
 const JobCard = ({ job }) => {
   const navigate = useNavigate();
 
-  // 🎨 Dynamic color for avatar
-  const getColor = (name = "") => {
-    const colors = [
-      "bg-red-100 text-red-700",
-      "bg-blue-100 text-blue-700",
-      "bg-green-100 text-green-700",
-      "bg-purple-100 text-purple-700",
-    ];
-    return colors[name.length % colors.length];
-  };
-
   return (
     <div
       onClick={() => navigate(`/job/${job._id}`)}
-      className="cursor-pointer bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:-translate-y-1 transition duration-300"
+      className="cursor-pointer bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl p-5 hover:shadow-2xl hover:-translate-y-1 transition duration-300"
     >
-      {/* Top */}
       <div className="flex justify-between items-start">
 
-        {/* LEFT */}
-        <div className="flex gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900">
+            {job.title}
+          </h2>
 
-          {/* 🏢 Avatar */}
-          <div
-            className={`w-10 h-10 flex items-center justify-center rounded-lg font-semibold ${getColor(
-              job.company
-            )}`}
-          >
-            {job.company?.slice(0, 2).toUpperCase()}
-          </div>
+          <p className="text-sm text-gray-600 mt-1">
+            {job.company} • {job.location}
+          </p>
 
-          {/* Info */}
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">
-              {job.title}
-            </h2>
-
-            <p className="text-sm text-gray-600 mt-1">
-              {job.company} • {job.location}
-            </p>
-
-            <p className="text-xs text-gray-400 mt-1">
-              {new Date(job.createdAt).toLocaleDateString()}
-            </p>
-          </div>
+          <p className="text-xs text-gray-400 mt-1">
+            {new Date(job.createdAt || Date.now()).toLocaleDateString()}
+          </p>
         </div>
 
-        {/* APPLY BUTTON */}
         <a
           href={job.applyLink}
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="text-sm font-medium text-white bg-black px-4 py-2 rounded-lg hover:bg-gray-800 transition"
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700"
         >
           Apply
         </a>
       </div>
 
-      {/* TAGS */}
-      <div className="flex flex-wrap gap-2 mt-4">
-        
-        <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
+      <div className="flex gap-2 mt-4 flex-wrap">
+        <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">
           {job.type || "Onsite"}
         </span>
 
-        <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full">
+        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
           {job.experience || "Fresher"}
         </span>
 
         {job.salary && (
-          <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
             {job.salary}
           </span>
         )}
       </div>
-
-      {/* SKILLS */}
-      {job.skills && job.skills.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-3">
-          {job.skills.map((skill, index) => (
-            <span
-              key={index}
-              className="text-xs border border-gray-300 px-2 py-1 rounded-md text-gray-600"
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
@@ -101,17 +58,21 @@ export default JobCard;
 
 
 
-
-
-
-
-
-
-
 // import { useNavigate } from "react-router-dom";
 
 // const JobCard = ({ job }) => {
 //   const navigate = useNavigate();
+
+//   // 🎨 Dynamic color for avatar
+//   const getColor = (name = "") => {
+//     const colors = [
+//       "bg-red-100 text-red-700",
+//       "bg-blue-100 text-blue-700",
+//       "bg-green-100 text-green-700",
+//       "bg-purple-100 text-purple-700",
+//     ];
+//     return colors[name.length % colors.length];
+//   };
 
 //   return (
 //     <div
@@ -122,18 +83,31 @@ export default JobCard;
 //       <div className="flex justify-between items-start">
 
 //         {/* LEFT */}
-//         <div>
-//           <h2 className="text-lg font-semibold text-gray-900">
-//             {job.title}
-//           </h2>
+//         <div className="flex gap-3">
 
-//           <p className="text-sm text-gray-600 mt-1">
-//             {job.company} • {job.location}
-//           </p>
+//           {/* 🏢 Avatar */}
+//           <div
+//             className={`w-10 h-10 flex items-center justify-center rounded-lg font-semibold ${getColor(
+//               job.company
+//             )}`}
+//           >
+//             {job.company?.slice(0, 2).toUpperCase()}
+//           </div>
 
-//           <p className="text-xs text-gray-400 mt-1">
-//             {new Date(job.createdAt).toLocaleDateString()}
-//           </p>
+//           {/* Info */}
+//           <div>
+//             <h2 className="text-lg font-semibold text-gray-900">
+//               {job.title}
+//             </h2>
+
+//             <p className="text-sm text-gray-600 mt-1">
+//               {job.company} • {job.location}
+//             </p>
+
+//             <p className="text-xs text-gray-400 mt-1">
+//               {new Date(job.createdAt).toLocaleDateString()}
+//             </p>
+//           </div>
 //         </div>
 
 //         {/* APPLY BUTTON */}
@@ -164,11 +138,10 @@ export default JobCard;
 //             {job.salary}
 //           </span>
 //         )}
-
 //       </div>
 
 //       {/* SKILLS */}
-//       {job.skills && (
+//       {job.skills && job.skills.length > 0 && (
 //         <div className="flex flex-wrap gap-2 mt-3">
 //           {job.skills.map((skill, index) => (
 //             <span
@@ -185,3 +158,5 @@ export default JobCard;
 // };
 
 // export default JobCard;
+
+

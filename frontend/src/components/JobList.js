@@ -3,50 +3,36 @@ import JobCard from "./JobCard";
 import SearchBar from "./SearchBar";
 import FilterBar from "./FilterBar";
 
-// ✅ Backend URL
 const API = "https://job-portal-backend-ax7n.onrender.com";
 
 const JobList = () => {
   const [jobs, setJobs] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
-  const [view, setView] = useState("list");
+  const [view, setView] = useState("grid");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        // 🔹 1. Fetch DB jobs FIRST
         const res = await fetch(`${API}/api/jobs`);
-
-        if (!res.ok) throw new Error("Failed to fetch DB jobs");
-
         const data = await res.json();
 
-        console.log("✅ DB Jobs:", data);
-
-        // ✅ Show DB jobs immediately
         setJobs(data);
         setLoading(false);
 
-        // 🔥 2. Fetch external jobs (NON-BLOCKING)
         try {
           const extRes = await fetch(`${API}/api/jobs/external`);
-
           if (extRes.ok) {
             const extData = await extRes.json();
-
-            console.log("🌍 External Jobs:", extData);
-
-            // ✅ Merge jobs safely
             setJobs((prev) => [...prev, ...extData]);
           }
-        } catch (err) {
-          console.log("External API failed (ignored)");
+        } catch {
+          console.log("External failed");
         }
 
       } catch (err) {
-        console.error("❌ ERROR:", err);
+        console.error(err);
         setLoading(false);
       }
     };
@@ -54,84 +40,35 @@ const JobList = () => {
     fetchJobs();
   }, []);
 
-  // 🔍 FILTER LOGIC
   const filteredJobs = jobs.filter((job) => {
     const searchText = search.toLowerCase();
 
-    const matchesSearch =
+    return (
       (job.title || "").toLowerCase().includes(searchText) ||
-      (job.company || "").toLowerCase().includes(searchText);
-
-    const matchesFilter =
-      filter === "" ||
-      (job.experience || "fresher").toLowerCase() === filter.toLowerCase();
-
-    return matchesSearch && matchesFilter;
+      (job.company || "").toLowerCase().includes(searchText)
+    );
   });
 
-  // ⏳ LOADING STATE
   if (loading) {
-    return (
-      <p className="text-center mt-10 text-gray-500 animate-pulse">
-        Loading jobs...
-      </p>
-    );
+    return <p className="text-center mt-10">Loading jobs...</p>;
   }
 
   return (
     <div>
-      {/* 🔍 SEARCH + FILTER */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-3 items-center">
-        <div className="w-full md:flex-1">
-          <SearchBar search={search} setSearch={setSearch} />
-        </div>
 
-        <div className="w-full md:w-56">
-          <FilterBar filter={filter} setFilter={setFilter} />
-        </div>
+      {/* SEARCH + FILTER */}
+      <div className="bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-lg mb-6 flex flex-col md:flex-row gap-3">
+        <SearchBar search={search} setSearch={setSearch} />
+        <FilterBar filter={filter} setFilter={setFilter} />
       </div>
 
-      {/* 🔘 VIEW TOGGLE */}
-      <div className="flex justify-end mb-4 gap-2">
-        <button
-          onClick={() => setView("list")}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
-            view === "list"
-              ? "bg-gray-900 text-white"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
-        >
-          📋 List
-        </button>
-
-        <button
-          onClick={() => setView("grid")}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
-            view === "grid"
-              ? "bg-gray-900 text-white"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
-        >
-          🧩 Grid
-        </button>
+      {/* GRID */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredJobs.map((job, index) => (
+          <JobCard key={job._id || index} job={job} />
+        ))}
       </div>
 
-      {/* 🧾 JOB LIST */}
-      <div
-        className={
-          view === "grid"
-            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4"
-            : "flex flex-col gap-4 mt-4"
-        }
-      >
-        {filteredJobs.length === 0 ? (
-          <p className="text-center text-gray-500">No jobs found</p>
-        ) : (
-          filteredJobs.map((job, index) => (
-            <JobCard key={job._id || index} job={job} />
-          ))
-        )}
-      </div>
     </div>
   );
 };

@@ -3,11 +3,11 @@ const FilterBar = ({ filter, setFilter }) => {
     <select
       value={filter}
       onChange={(e) => setFilter(e.target.value)}
-      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+      className="p-3 rounded-lg border border-gray-300"
     >
-      <option value="">All Experience</option>
+      <option value="">All</option>
       <option value="fresher">Fresher</option>
-      <option value="1-2">1-2 Years</option>
+      <option value="1-2 years">1-2 years</option>
     </select>
   );
 };
