@@ -1,13 +1,12 @@
 const Job = require("../models/Job");
-const axios = require("axios");
+const fetch = require("node-fetch");
 
-// ✅ GET ALL JOBS (MongoDB)
+// ✅ GET ALL JOBS (DB)
 exports.getJobs = async (req, res) => {
   try {
     const jobs = await Job.find().sort({ createdAt: -1 });
     res.json(jobs);
   } catch (err) {
-    console.error("DB Fetch Error:", err.message);
     res.status(500).json({ message: "Error fetching jobs" });
   }
 };
@@ -23,7 +22,6 @@ exports.getJobById = async (req, res) => {
 
     res.json(job);
   } catch (err) {
-    console.error("Get Job Error:", err.message);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -35,7 +33,6 @@ exports.addJob = async (req, res) => {
     await job.save();
     res.status(201).json(job);
   } catch (err) {
-    console.error("Add Job Error:", err.message);
     res.status(500).json({ message: "Error adding job" });
   }
 };
@@ -46,22 +43,24 @@ exports.deleteJob = async (req, res) => {
     await Job.findByIdAndDelete(req.params.id);
     res.json({ message: "Job deleted" });
   } catch (err) {
-    console.error("Delete Job Error:", err.message);
     res.status(500).json({ message: "Error deleting job" });
   }
 };
 
-// 🔥 GET EXTERNAL JOBS (RapidAPI - FIXED)
+// 🔥 EXTERNAL INDIA + CITY FILTER
 exports.getExternalJobs = async (req, res) => {
   try {
-    const response = await axios.get(
-      "https://jsearch.p.rapidapi.com/search",
+    const city = req.query.city || "India";
+
+    // 🔥 Dynamic query
+    const query = `software developer ${city} india`;
+
+    const response = await fetch(
+      `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(
+        query
+      )}&num_pages=1`,
       {
-        params: {
-          query: "developer jobs",
-          page: "1",
-          num_pages: "1",
-        },
+        method: "GET",
         headers: {
           "X-RapidAPI-Key": process.env.RAPIDAPI_KEY,
           "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
@@ -69,24 +68,37 @@ exports.getExternalJobs = async (req, res) => {
       }
     );
 
-    const jobs = response.data?.data || [];
+    const data = await response.json();
 
-    // ✅ Format for frontend
-    const formattedJobs = jobs.map((job) => ({
-      title: job.job_title || "No Title",
-      company: job.employer_name || "Unknown",
-      location: job.job_city || "Remote",
-      applyLink: job.job_apply_link || "#",
+    // ✅ STRICT INDIA FILTER
+    const indiaJobs = data.data.filter((job) => {
+      return (
+        job.job_country === "IN" || // best check
+        (job.job_location || "").toLowerCase().includes("india")
+      );
+    });
+
+    // ✅ FORMAT DATA
+    const formattedJobs = indiaJobs.map((job) => ({
+      _id: job.job_id,
+      title: job.job_title,
+      company: job.employer_name,
+      location:
+        job.job_city ||
+        job.job_location ||
+        city ||
+        "India",
+      applyLink: job.job_apply_link,
       experience: "fresher",
-      type: "remote",
-      salary: "Not specified",
+      type: job.job_employment_type || "onsite",
+      salary: job.job_salary || "Not disclosed",
+      description: job.job_description,
+      source: "external",
     }));
 
     res.json(formattedJobs);
-  } catch (err) {
-    console.error("❌ External API Error FULL:", err.response?.data || err.message);
-
-    // 🔥 IMPORTANT: don't crash frontend
-    res.json([]); // return empty array instead of 500
+  } catch (error) {
+    console.error("External API error:", error);
+    res.status(500).json({ message: "Failed to fetch external jobs" });
   }
 };
