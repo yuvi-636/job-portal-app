@@ -3,20 +3,15 @@ const router = express.Router();
 
 const {
   getJobs,
+  getJobById,
   addJob,
-  addMultipleJobs,
   deleteJob,
 } = require("../controllers/jobController");
 
-// ✅ TEST ROUTE (IMPORTANT)
-router.get("/test", (req, res) => {
-  res.json({ message: "jobRoutes working ✅" });
-});
-
-// ✅ MAIN ROUTES
+// ✅ ROUTES
 router.get("/", getJobs);
+router.get("/:id", getJobById); // 🔥 IMPORTANT
 router.post("/", addJob);
-router.post("/bulk", addMultipleJobs);
 router.delete("/:id", deleteJob);
 
 module.exports = router;

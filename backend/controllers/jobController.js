@@ -1,50 +1,47 @@
 const Job = require("../models/Job");
 
-const getJobs = async (req, res) => {
+// ✅ GET ALL JOBS
+exports.getJobs = async (req, res) => {
   try {
-    console.log("🔥 getJobs called");
-
-    const jobs = await Job.find();
-
-    console.log("✅ Jobs fetched:", jobs.length);
-
+    const jobs = await Job.find().sort({ createdAt: -1 });
     res.json(jobs);
   } catch (err) {
-    console.error("❌ ERROR in getJobs:", err);
-    res.status(500).json({ message: "Server error in getJobs" });
+    res.status(500).json({ message: "Error fetching jobs" });
   }
 };
 
-const addJob = async (req, res) => {
+// ✅ GET SINGLE JOB
+exports.getJobById = async (req, res) => {
   try {
-    const job = await Job.create(req.body);
+    const job = await Job.findById(req.params.id);
+
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
     res.json(job);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ✅ ADD JOB
+exports.addJob = async (req, res) => {
+  try {
+    const job = new Job(req.body);
+    await job.save();
+    res.status(201).json(job);
   } catch (err) {
     res.status(500).json({ message: "Error adding job" });
   }
 };
 
-const addMultipleJobs = async (req, res) => {
-  try {
-    const jobs = await Job.insertMany(req.body);
-    res.json(jobs);
-  } catch (err) {
-    res.status(500).json({ message: "Error bulk insert" });
-  }
-};
-
-const deleteJob = async (req, res) => {
+// ✅ DELETE JOB
+exports.deleteJob = async (req, res) => {
   try {
     await Job.findByIdAndDelete(req.params.id);
-    res.json({ message: "Deleted" });
+    res.json({ message: "Job deleted" });
   } catch (err) {
-    res.status(500).json({ message: "Error deleting" });
+    res.status(500).json({ message: "Error deleting job" });
   }
-};
-
-module.exports = {
-  getJobs,
-  addJob,
-  addMultipleJobs,
-  deleteJob,
 };
