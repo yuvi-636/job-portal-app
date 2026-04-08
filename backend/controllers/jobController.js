@@ -47,13 +47,13 @@ exports.deleteJob = async (req, res) => {
   }
 };
 
-// 🔥 EXTERNAL INDIA + CITY FILTER
+// 🔥 EXTERNAL JOBS (INDIA + CITY BASED — FIXED)
 exports.getExternalJobs = async (req, res) => {
   try {
-    const city = req.query.city || "India";
+    const city = req.query.city || "india";
 
-    // 🔥 Dynamic query
-    const query = `software developer ${city} india`;
+    // ✅ FIXED QUERY (IMPORTANT)
+    const query = `${city} software developer india`;
 
     const response = await fetch(
       `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(
@@ -70,23 +70,17 @@ exports.getExternalJobs = async (req, res) => {
 
     const data = await response.json();
 
-    // ✅ STRICT INDIA FILTER
-    const indiaJobs = data.data.filter((job) => {
-      return (
-        job.job_country === "IN" || // best check
-        (job.job_location || "").toLowerCase().includes("india")
-      );
-    });
+    // ✅ DO NOT OVER-FILTER (THIS WAS YOUR MAIN BUG)
+    const jobs = data.data || [];
 
     // ✅ FORMAT DATA
-    const formattedJobs = indiaJobs.map((job) => ({
+    const formattedJobs = jobs.map((job) => ({
       _id: job.job_id,
       title: job.job_title,
       company: job.employer_name,
       location:
         job.job_city ||
         job.job_location ||
-        city ||
         "India",
       applyLink: job.job_apply_link,
       experience: "fresher",

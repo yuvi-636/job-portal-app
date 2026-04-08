@@ -7,7 +7,6 @@ const JobList = () => {
   const [jobs, setJobs] = useState([]);
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
-  const [view, setView] = useState("list");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,7 +19,7 @@ const JobList = () => {
         setJobs(data);
         setLoading(false);
 
-        // 🔥 CITY BASED EXTERNAL JOBS
+        // 🔥 EXTERNAL JOBS (CITY BASED)
         try {
           const cityQuery = location || "india";
 
@@ -34,19 +33,19 @@ const JobList = () => {
             setJobs((prev) => [...prev, ...externalData]);
           }
         } catch (err) {
-          console.log("External failed");
+          console.log("External API failed");
         }
 
       } catch (err) {
-        console.error(err);
+        console.error("Main API error:", err);
         setLoading(false);
       }
     };
 
     fetchJobs();
-  }, [location]); // 🔥 REFETCH ON LOCATION CHANGE
+  }, [location]); // 🔥 IMPORTANT
 
-  // FILTER
+  // 🔍 FILTER
   const filteredJobs = jobs.filter((job) => {
     const searchText = search.toLowerCase();
     const locationText = location.toLowerCase();
@@ -71,7 +70,7 @@ const JobList = () => {
     <div>
       {/* SEARCH + LOCATION */}
       <div className="bg-white p-5 rounded-2xl shadow-sm border mb-6">
-        <div className="flex gap-3 flex-col md:flex-row">
+        <div className="flex flex-col md:flex-row gap-3">
 
           <input
             type="text"
