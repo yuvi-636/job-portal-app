@@ -1,7 +1,7 @@
 const Job = require("../models/Job");
 const fetch = require("node-fetch");
 
-// ✅ GET ALL JOBS (DB)
+// ✅ GET ALL JOBS
 exports.getJobs = async (req, res) => {
   try {
     const jobs = await Job.find().sort({ createdAt: -1 });
@@ -47,13 +47,19 @@ exports.deleteJob = async (req, res) => {
   }
 };
 
-// 🔥 EXTERNAL JOBS (INDIA + CITY BASED — FIXED)
+// 🔥 FIXED EXTERNAL JOBS (NO CRASH VERSION)
 exports.getExternalJobs = async (req, res) => {
   try {
     const city = req.query.city || "india";
-
-    // ✅ FIXED QUERY (IMPORTANT)
     const query = `${city} software developer india`;
+
+    console.log("🔍 Fetching jobs for:", query);
+
+    // 🚨 CHECK KEY
+    if (!process.env.RAPIDAPI_KEY) {
+      console.log("❌ RAPIDAPI_KEY missing");
+      return res.json([]); // don't crash
+    }
 
     const response = await fetch(
       `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(
@@ -70,18 +76,21 @@ exports.getExternalJobs = async (req, res) => {
 
     const data = await response.json();
 
-    // ✅ DO NOT OVER-FILTER (THIS WAS YOUR MAIN BUG)
-    const jobs = data.data || [];
+    console.log("✅ API RESPONSE RECEIVED");
 
-    // ✅ FORMAT DATA
+    // 🚨 SAFE CHECK
+    if (!data || !data.data) {
+      console.log("❌ Invalid API response:", data);
+      return res.json([]);
+    }
+
+    const jobs = data.data;
+
     const formattedJobs = jobs.map((job) => ({
       _id: job.job_id,
       title: job.job_title,
       company: job.employer_name,
-      location:
-        job.job_city ||
-        job.job_location ||
-        "India",
+      location: job.job_city || job.job_location || "India",
       applyLink: job.job_apply_link,
       experience: "fresher",
       type: job.job_employment_type || "onsite",
@@ -91,8 +100,9 @@ exports.getExternalJobs = async (req, res) => {
     }));
 
     res.json(formattedJobs);
+
   } catch (error) {
-    console.error("External API error:", error);
-    res.status(500).json({ message: "Failed to fetch external jobs" });
+    console.error("❌ External API ERROR:", error.message);
+    res.json([]); // ✅ NEVER CRASH
   }
 };
