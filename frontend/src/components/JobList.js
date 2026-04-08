@@ -13,13 +13,29 @@ const JobList = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
+        // ✅ 1. Fetch DB jobs first
         const res = await fetch(`${API}/api/jobs`);
         const data = await res.json();
 
         setJobs(data);
         setLoading(false);
+
+        // ✅ 2. Fetch external jobs separately (non-blocking)
+        try {
+          const externalRes = await fetch(`${API}/api/jobs/external`);
+
+          if (externalRes.ok) {
+            const externalData = await externalRes.json();
+
+            // merge jobs
+            setJobs((prev) => [...prev, ...externalData]);
+          }
+        } catch (err) {
+          console.log("External jobs failed (ignored)");
+        }
+
       } catch (err) {
-        console.error(err);
+        console.error("Main API error:", err);
         setLoading(false);
       }
     };
@@ -27,7 +43,7 @@ const JobList = () => {
     fetchJobs();
   }, []);
 
-  // FILTER
+  // 🔍 FILTER
   const filteredJobs = jobs.filter((job) => {
     const searchText = search.toLowerCase();
     const locationText = location.toLowerCase();
@@ -98,7 +114,7 @@ const JobList = () => {
         </button>
       </div>
 
-      {/* JOBS */}
+      {/* JOB LIST */}
       <div
         className={
           view === "grid"
@@ -112,7 +128,7 @@ const JobList = () => {
           </p>
         ) : (
           filteredJobs.map((job) => (
-            <JobCard key={job._id} job={job} />
+            <JobCard key={job._id || job.id} job={job} />
           ))
         )}
       </div>
