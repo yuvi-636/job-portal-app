@@ -3,7 +3,9 @@ import JobCard from "./JobCard";
 import SearchBar from "./SearchBar";
 import FilterBar from "./FilterBar";
 
-// ✅ DIRECT BACKEND URL (NO VARIABLES, NO ?v=2)
+// ✅ Backend URL
+const API = "https://job-portal-backend-ax7n.onrender.com";
+
 const JobList = () => {
   const [jobs, setJobs] = useState([]);
   const [search, setSearch] = useState("");
@@ -14,20 +16,35 @@ const JobList = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        // ✅ CORRECT API CALL
-        const res = await fetch(
-          "https://job-portal-backend-ax7n.onrender.com/api/jobs"
-        );
+        // 🔹 1. Fetch DB jobs FIRST
+        const res = await fetch(`${API}/api/jobs`);
 
-        if (!res.ok) throw new Error("Failed to fetch");
+        if (!res.ok) throw new Error("Failed to fetch DB jobs");
 
         const data = await res.json();
 
-        console.log("✅ Jobs:", data);
+        console.log("✅ DB Jobs:", data);
 
-        // ✅ SET DATA
+        // ✅ Show DB jobs immediately
         setJobs(data);
         setLoading(false);
+
+        // 🔥 2. Fetch external jobs (NON-BLOCKING)
+        try {
+          const extRes = await fetch(`${API}/api/jobs/external`);
+
+          if (extRes.ok) {
+            const extData = await extRes.json();
+
+            console.log("🌍 External Jobs:", extData);
+
+            // ✅ Merge jobs safely
+            setJobs((prev) => [...prev, ...extData]);
+          }
+        } catch (err) {
+          console.log("External API failed (ignored)");
+        }
+
       } catch (err) {
         console.error("❌ ERROR:", err);
         setLoading(false);
@@ -110,8 +127,8 @@ const JobList = () => {
         {filteredJobs.length === 0 ? (
           <p className="text-center text-gray-500">No jobs found</p>
         ) : (
-          filteredJobs.map((job) => (
-            <JobCard key={job._id} job={job} />
+          filteredJobs.map((job, index) => (
+            <JobCard key={job._id || index} job={job} />
           ))
         )}
       </div>
